@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+dist/
+build/
+.cache/
+*.tsbuildinfo
+
+# Environment
+.env
+*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Uploads
+uploads/
+temp/
+
+# Firebase
+.firebase/
+firebase-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

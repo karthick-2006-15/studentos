@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#0B131F" />
+      <stop offset="100%" stop-color="#05070B" />
+    </radialGradient>
+    
+    <!-- Outer Hexagon Glow -->
+    <filter id="hexGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Core Diamond Glow -->
+    <filter id="coreGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16" result="blur1" />
+      <feGaussianBlur stdDeviation="32" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur2" />
+        <feMergeNode in="blur1" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    
+    <!-- Core Gradient -->
+    <linearGradient id="coreGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="25%" stop-color="#00F0FF" />
+      <stop offset="100%" stop-color="#0066FF" />
+    </linearGradient>
+
+    <!-- Hexagon Path -->
+    <path id="hexagon" d="M 256 32 L 450 144 L 450 368 L 256 480 L 62 368 L 62 144 Z" />
+  </defs>
+
+  <!-- Base Background -->
+  <rect width="512" height="512" fill="url(#bgGlow)" />
+
+  <!-- Outer Hexagon Border -->
+  <use href="#hexagon" fill="none" stroke="#00D4FF" stroke-width="6" filter="url(#hexGlow)" opacity="0.8"/>
+  <use href="#hexagon" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+
+  <!-- Inner Runic/Geometric Ring -->
+  <g stroke="#0077FF" stroke-width="3" fill="none" opacity="0.4" stroke-dasharray="12 12">
+    <circle cx="256" cy="256" r="160" />
+    <circle cx="256" cy="256" r="170" stroke-dasharray="4 8" opacity="0.6"/>
+  </g>
+
+  <!-- Crosshairs / HUD Elements -->
+  <g stroke="#00D4FF" stroke-width="2" opacity="0.5">
+    <line x1="256" y1="60" x2="256" y2="90" />
+    <line x1="256" y1="422" x2="256" y2="452" />
+    <line x1="60" y1="256" x2="90" y2="256" />
+    <line x1="422" y1="256" x2="452" y2="256" />
+    
+    <circle cx="256" cy="60" r="4" fill="#00D4FF" />
+    <circle cx="256" cy="452" r="4" fill="#00D4FF" />
+    <circle cx="60" cy="256" r="4" fill="#00D4FF" />
+    <circle cx="452" cy="256" r="4" fill="#00D4FF" />
+  </g>
+
+  <!-- Central Energy Core (Diamond Shard) -->
+  <g filter="url(#coreGlow)">
+    <polygon points="256,128 320,256 256,384 192,256" fill="url(#coreGradient)" />
+    <!-- Inner bright reflection -->
+    <polygon points="256,150 300,256 256,360 212,256" fill="#E6FFFF" opacity="0.7"/>
+  </g>
+
+  <!-- Floating Particles -->
+  <g fill="#00F0FF" filter="url(#hexGlow)">
+    <circle cx="160" cy="180" r="3" opacity="0.7"/>
+    <circle cx="340" cy="150" r="2.5" opacity="0.8"/>
+    <circle cx="140" cy="320" r="4" opacity="0.5"/>
+    <circle cx="370" cy="350" r="3.5" opacity="0.6"/>
+    <circle cx="290" cy="100" r="2" opacity="0.4"/>
+    <circle cx="210" cy="420" r="3" opacity="0.7"/>
+  </g>
+</svg>
