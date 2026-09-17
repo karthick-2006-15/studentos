@@ -133,13 +133,26 @@ export const logout = async (req: Request, res: Response) => {
 
 export const getMe = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const user = await User.findById(req.user?._id).select('-password');
+    if (!req.user?._id) {
+      return res.status(200).json({
+        success: true,
+        isAuthenticated: false,
+        user: null
+      });
+    }
+
+    const user = await User.findById(req.user._id).select('-password');
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return res.status(200).json({
+        success: true,
+        isAuthenticated: false,
+        user: null
+      });
     }
 
     return res.status(200).json({
       success: true,
+      isAuthenticated: true,
       user: {
         id: user._id,
         name: user.name,
@@ -153,7 +166,11 @@ export const getMe = async (req: AuthenticatedRequest, res: Response, next: Next
       }
     });
   } catch (err) {
-    next(err);
+    return res.status(200).json({
+      success: true,
+      isAuthenticated: false,
+      user: null
+    });
   }
 };
 
