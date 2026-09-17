@@ -6,6 +6,7 @@ import { User } from '../models/User';
 import { NotificationSettings } from '../models/Notification';
 import { Integration } from '../models/Integration';
 import { env } from '../config/env';
+import { connectDatabase } from '../config/database';
 import { AppError } from '../utils/AppError';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 
@@ -31,7 +32,10 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     }
 
     if (mongoose.connection.readyState !== 1) {
-      return next(new AppError('Database is not connected. Please configure MONGODB_URI in your environment settings.', 503));
+      await connectDatabase();
+    }
+    if (mongoose.connection.readyState !== 1) {
+      return next(new AppError('Database is not connected. Please verify MongoDB Atlas connection.', 503));
     }
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -83,7 +87,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }
 
     if (mongoose.connection.readyState !== 1) {
-      return next(new AppError('Database is not connected. Please configure MONGODB_URI in your environment settings.', 503));
+      await connectDatabase();
+    }
+    if (mongoose.connection.readyState !== 1) {
+      return next(new AppError('Database is not connected. Please verify MongoDB Atlas connection.', 503));
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -261,7 +268,10 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     }
 
     if (mongoose.connection.readyState !== 1) {
-      return next(new AppError('Database is not connected. Please configure MONGODB_URI in your environment settings.', 503));
+      await connectDatabase();
+    }
+    if (mongoose.connection.readyState !== 1) {
+      return next(new AppError('Database is not connected. Please verify MongoDB Atlas connection.', 503));
     }
 
     // Find existing user by googleId or email

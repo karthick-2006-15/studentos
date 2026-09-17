@@ -7,6 +7,7 @@ import cron from 'node-cron';
 import path from 'path';
 import fs from 'fs';
 
+import mongoose from 'mongoose';
 import { env } from './config/env';
 import { connectDatabase } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
@@ -68,8 +69,17 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
     service: 'NEXUS Student OS API',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     time: new Date().toISOString()
   });
+});
+
+// Ensure Database is connected for all API operations (handles Cloud Run cold starts)
+app.use('/api', async (_req, _res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    await connectDatabase();
+  }
+  next();
 });
 
 // Mount Routes
