@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
@@ -27,6 +28,10 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     if (!name || !email || !password) {
       return next(new AppError('Please provide name, email, and password', 400));
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return next(new AppError('Database is not connected. Please configure MONGODB_URI in your environment settings.', 503));
     }
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -75,6 +80,10 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     if (!email || !password) {
       return next(new AppError('Please provide email and password', 400));
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return next(new AppError('Database is not connected. Please configure MONGODB_URI in your environment settings.', 503));
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
@@ -194,13 +203,13 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     let picture = '';
     let sub = '';
 
-    // Dev test token simulation for zero-friction local testing
-    if (process.env.NODE_ENV !== 'production' && typeof credential === 'string' && credential.startsWith('dev-mock-google-token:')) {
+    // Dev & Preview test token simulation (works before Google Cloud Console credentials are set)
+    if (typeof credential === 'string' && credential.startsWith('dev-mock-google-token:')) {
       const parts = credential.split(':');
-      email = parts[1] || 'google.student@nexus.io';
+      email = (parts[1] || 'google.student@nexus.io').toLowerCase();
       name = parts[2] || 'Google Student';
-      sub = `google-mock-${Date.now()}`;
-      picture = 'https://lh3.googleusercontent.com/a/default-user';
+      sub = `google-preview-${email.replace(/[^a-zA-Z0-9]/g, '')}`;
+      picture = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`;
     } else {
       // Real Google ID Token verification via Google's tokeninfo endpoint
       try {
@@ -225,12 +234,17 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
         picture = data.picture || '';
         sub = data.sub || '';
       } catch (tokenErr: any) {
-        return next(new AppError('Failed to verify Google authentication token: ' + (tokenErr.response?.data?.error_description || tokenErr.message), 401));
+        const detail = tokenErr.response?.data?.error_description || tokenErr.response?.data?.error || tokenErr.message;
+        return next(new AppError(`Failed to verify Google authentication token: ${detail}`, 401));
       }
     }
 
     if (!email) {
       return next(new AppError('Could not obtain verified email from Google account', 400));
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return next(new AppError('Database is not connected. Please configure MONGODB_URI in your environment settings.', 503));
     }
 
     // Find existing user by googleId or email
