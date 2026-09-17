@@ -10,7 +10,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
-  MONGODB_URI: z.string().default('mongodb://localhost:27017/nexus_student_os'),
+  MONGODB_URI: z.string().default('mongodb+srv://karthicksivanesh6_db_user:RA24110030121454@cluster0.io5t8gd.mongodb.net/nexus_student_os?retryWrites=true&w=majority&appName=Cluster0'),
   JWT_SECRET: z.string().default('nexus_super_secret_jwt_token_2026_student_os_system'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   COOKIE_DOMAIN: z.string().default('localhost'),
