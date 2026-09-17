@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import cron from 'node-cron';
 import path from 'path';
+import fs from 'fs';
 
 import { env } from './config/env';
 import { connectDatabase } from './config/database';
@@ -86,8 +87,27 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 
-// Global Error Handler
+// Global Error Handler for API routes
 app.use(errorHandler);
+
+// In production, serve the built Vite SPA from client/dist
+const clientDistCandidates = [
+  path.resolve(__dirname, '../../client/dist'),
+  path.resolve(process.cwd(), 'client/dist')
+];
+const clientDistPath = clientDistCandidates.find(p => fs.existsSync(p));
+
+if (clientDistPath) {
+  logger.info(`[Static] Serving client assets from: ${clientDistPath}`);
+  app.use(express.static(clientDistPath));
+
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
 
 // Background Cron Jobs for automated notifications
 cron.schedule('0 8 * * *', () => {
@@ -102,8 +122,9 @@ cron.schedule('0 21 * * *', () => {
 const startServer = async () => {
   await connectDatabase();
 
-  app.listen(env.PORT, () => {
-    logger.info(`🚀 NEXUS API Server active on http://localhost:${env.PORT}`);
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : env.PORT;
+  app.listen(port, '0.0.0.0', () => {
+    logger.info(`🚀 NEXUS Server active on port ${port}`);
     logger.info(`Environment: ${env.NODE_ENV}`);
   });
 };

@@ -7,7 +7,7 @@ dotenv.config();
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const envSchema = z.object({
-  PORT: z.string().default('5000').transform(val => parseInt(val, 10)),
+  PORT: z.coerce.number().default(5000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
   MONGODB_URI: z.string().default('mongodb://localhost:27017/nexus_student_os'),
